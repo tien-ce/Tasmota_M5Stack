@@ -43,14 +43,6 @@ bool SHT20isConnected()
     RS485.Rs485Modbus->Send(SHT20_ADDRESS_ID, SHT20_FUNCTION_CODE, SHT20_ADDRESS_TEMP_AND_HUM, 1);
 
     uint32_t start_time = millis(); // Store start time
-    /* while (!RS485.Rs485Modbus->ReceiveReady())
-    {
-        if (millis() - start_time > 200)
-            return false; // Timeout after 200ms
-        yield();          // Allow background tasks (important for ESP32)
-    } */
-    /* delay(150);
-    if(!RS485.Rs485Modbus -> ReceiveReady()) return false; */
     uint32_t wait_until = millis() + SHT20_TIMEOUT;
     while(!TimeReached(wait_until))
     {
@@ -60,7 +52,17 @@ bool SHT20isConnected()
     }
 
     uint8_t buffer[8];
-    return (RS485.Rs485Modbus->ReceiveBuffer(buffer, 8) == 0 && buffer[0] == 0x02);
+    uint8_t error = RS485.Rs485Modbus -> ReceiveBuffer(buffer,8);
+    if(error)
+    {
+        AddLog(LOG_LEVEL_INFO, PSTR("SHT20 has error %d"), error);
+        return false;
+    }
+    else
+    {
+        if(buffer[0] == SHT20_ADDRESS_ID) return true;
+    }
+    return false;
 }
 
 void SHT20Init()
