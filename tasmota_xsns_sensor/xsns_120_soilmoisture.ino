@@ -56,9 +56,6 @@ Soil Potassium (unit mg/kg)      |0020H                |
 This transmitter only uses function code 0x03 (read register data)
 */
 
-/* #include <TasmotaModbus.h>
-TasmotaModbus *RS485.Rs485Modbus; */
-
 struct SoilMoisture
 {
     float temperature = 0;
@@ -73,7 +70,7 @@ struct SoilMoisture
     bool valid = false;
 }SM_sensor;
 
-#define SM_ADDRESS_ID 0x03
+#define SM_ADDRESS_ID 0x11
 #define SM_FUNCTION_CODE 0x03 
 #define SM_TIMEOUT 150
 
@@ -107,7 +104,7 @@ bool SMisConnected()
     }
     else
     {
-        if(buffer[0] == 0x03) return true;
+        if(buffer[0] == SM_ADDRESS_ID) return true;
     }
     return false;
 }
