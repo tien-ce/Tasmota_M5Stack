@@ -22,12 +22,7 @@ bool WDSisConnected()
     RS485.Rs485Modbus -> Send(WDS_ADDRESS_ID, WDS_FUNCTION_CODE, WDS_ADDRESS_WIND_DIRECTION, 1);
 
     uint32_t start_time = millis();
-    /* while(!RS485.Rs485Modbus -> ReceiveReady())
-    {
-        if(millis() - start_time > 200) return false;
-        yield();
-    } */
-
+ 
     uint32_t wait_until = millis() + WDS_TIMEOUT;
     while (!TimeReached(wait_until))
     {
@@ -45,11 +40,9 @@ bool WDSisConnected()
     }
     else
     {
-        if(buffer[0] == 0x01) return true;
-        return false;
+        if(buffer[0] == WDS_ADDRESS_ID) return true;
     }
     return false;
-    //return(RS485.Rs485Modbus -> ReceiveBuffer(buffer, 8) == 0 && buffer[0] == 0x01);
 }
 
 void WDSInit(void)
@@ -103,33 +96,6 @@ void WDSReadData(void)
         }
     }
 }
-
-/* void WDSReadData(void)
-{
-    if(WDS.valid == false) return;
-
-    //if(current_sensor != 0) return;
-
-    RS485.Rs485Modbus -> Send(0x01, 0x03, 0x0001, 0x0001);
-    delay(100);
-    if(RS485.Rs485Modbus -> ReceiveReady())
-    {
-        uint8_t buffer[8];
-        uint8_t error = RS485.Rs485Modbus -> ReceiveBuffer(buffer, 8);
-
-        if(error)
-        {
-            AddLog(LOG_LEVEL_INFO, PSTR("Modbus WDS Error: %u"), error);
-        }
-        else if(buffer[0] == 0x01)
-        {
-            uint16_t wind_directionRaw = (buffer[3] << 8) | buffer[4];
-            WDS.wind_direction = wind_directionRaw/10.0;   
-        }
-    }
-
-    //current_sensor = 1;
-} */
 
 const char HTTP_SNS_WDS[] PROGMEM = "{s} Wind Direction {m} %d";
 #define D_JSON_WDS "WindDirection"
