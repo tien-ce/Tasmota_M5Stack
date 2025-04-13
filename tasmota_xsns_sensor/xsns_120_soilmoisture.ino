@@ -81,12 +81,7 @@ bool SMisConnected()
 
     RS485.Rs485Modbus->Send(SM_ADDRESS_ID, SM_FUNCTION_CODE, 0x0006 , 1);
     uint32_t start_time = millis();
-    /* while(!RS485.Rs485Modbus -> ReceiveReady())
-    {
-        if(millis() - start_time > 200) return false;
-        yield();
-    } */
-
+   
     uint32_t wait_until = millis() + SM_TIMEOUT;
     while(!TimeReached(wait_until))
     {
@@ -141,15 +136,11 @@ void SMreadData(void)
     };
 
     static uint8_t requestIndex = 0;
-    //static uint32_t lastRequestTime = 0;
-    //static bool requestSent = false;
+
 
     if (RS485.requestSent[SM_ADDRESS_ID] == 0 && RS485.lastRequestTime == 0)
     {
         RS485.Rs485Modbus->Send(SM_ADDRESS_ID, SM_FUNCTION_CODE, modbusRequests[requestIndex].regAddr, modbusRequests[requestIndex].regCount);
-        //lastRequestTime = millis();
-        //requestSent = true;
-
         RS485.requestSent[SM_ADDRESS_ID] = 1;
         RS485.lastRequestTime = millis();
     }
@@ -186,7 +177,6 @@ void SMreadData(void)
                     break;
                 }
             }
-            //requestSent = false;
             requestIndex = (requestIndex + 1) % (sizeof(modbusRequests) / sizeof(modbusRequests[0]));
 
             RS485.requestSent[SM_ADDRESS_ID] = 0;
@@ -220,14 +210,13 @@ void SMShow(bool json)
     {
         ResponseAppend_P(PSTR(",\"%s\":{"), SM_sensor.name);
 
-        ResponseAppend_P(PSTR("\"" D_JSON_SOIL_PH_VALUE "\":%.1f"), SM_sensor.PH_values);
-        ResponseAppend_P(PSTR("\"" D_JSON_SOIL_MOISTURE "\":%.1f"), SM_sensor.soil_moisture);
-        ResponseAppend_P(PSTR("\"" D_JSON_SOIL_TEMPERATURE "\":%.1f"), SM_sensor.temperature);
-        ResponseAppend_P(PSTR("\"" D_JSON_SOIL_CONDUCTIVITY "\":%d"), SM_sensor.soil_conductivity);
-        ResponseAppend_P(PSTR("\"" D_JSON_SOIL_NITROGEN "\":%d"), SM_sensor.soil_nitrogen);
-        ResponseAppend_P(PSTR("\"" D_JSON_SOIL_PHOSPHORUS "\":%d"), SM_sensor.soil_phosphorus);
+        ResponseAppend_P(PSTR("\"" D_JSON_SOIL_PH_VALUE "\":%.1f,"), SM_sensor.PH_values);
+        ResponseAppend_P(PSTR("\"" D_JSON_SOIL_MOISTURE "\":%.1f,"), SM_sensor.soil_moisture);
+        ResponseAppend_P(PSTR("\"" D_JSON_SOIL_TEMPERATURE "\":%.1f,"), SM_sensor.temperature);
+        ResponseAppend_P(PSTR("\"" D_JSON_SOIL_CONDUCTIVITY "\":%d,"), SM_sensor.soil_conductivity);
+        ResponseAppend_P(PSTR("\"" D_JSON_SOIL_NITROGEN "\":%d,"), SM_sensor.soil_nitrogen);
+        ResponseAppend_P(PSTR("\"" D_JSON_SOIL_PHOSPHORUS "\":%d,"), SM_sensor.soil_phosphorus);
         ResponseAppend_P(PSTR("\"" D_JSON_SOIL_POTASSIUM "\":%d"), SM_sensor.soil_potassium);
-
         ResponseJsonEnd();
     }
 #ifdef USE_WEBSERVER

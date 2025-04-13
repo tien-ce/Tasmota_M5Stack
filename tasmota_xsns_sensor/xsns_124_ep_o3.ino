@@ -10,8 +10,8 @@ struct EPO3t
     char name[3] = "O3";
 }EPO3;
 
-#define EPO3_ADDRESS_ID 0x01
-#define EPO3_ADDRESS_O3_CONCENTRATION 0x0000
+#define EPO3_ADDRESS_ID 0x22
+#define EPO3_ADDRESS_O3_CONCENTRATION 0x0006
 #define EPO3_FUNCTION_CODE 0x03
 #define EPO3_TIMEOUT 150
 
@@ -58,7 +58,6 @@ void EPO3ReadData(void)
     if(!EPO3.valid) return;
 
     if(isWaitingResponse(EPO3_ADDRESS_ID)) return;
-    //AddLog(LOG_LEVEL_INFO, PSTR("Checkingg"));
     if((RS485.requestSent[EPO3_ADDRESS_ID] == 0) && RS485.lastRequestTime == 0)
     {
         RS485.Rs485Modbus -> Send(EPO3_ADDRESS_ID, EPO3_FUNCTION_CODE, EPO3_ADDRESS_O3_CONCENTRATION, 1);
@@ -79,7 +78,6 @@ void EPO3ReadData(void)
         {
             uint16_t o3_valueRaw = (buffer[3] << 8) | buffer[4];
             EPO3.o3_value = o3_valueRaw;
-            //AddLog(LOG_LEVEL_INFO, PSTR("ReadData O3 successful"));
         }
         RS485.requestSent[EPO3_ADDRESS_ID] = 0;
         RS485.lastRequestTime = 0;

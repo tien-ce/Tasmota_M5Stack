@@ -116,40 +116,6 @@ void SHT20ReadData(void)
     }
 }
 
-/* void SHT20ReadData(void)
-{
-    if(Sht20.valid == false)
-    {
-        current_sensor = 0;
-        return;
-    }
-
-    if(current_sensor != 1) return;
-
-    RS485.Rs485Modbus -> Send(0x02,0x04,0x0001,0x0002);
-    delay(200);
-    if(RS485.Rs485Modbus -> ReceiveReady())
-    {
-        uint8_t buffer[8];
-        uint8_t error = RS485.Rs485Modbus -> ReceiveBuffer(buffer, 8);
-
-        if(error)
-        {
-            AddLog(LOG_LEVEL_INFO, PSTR("Modbus SHT20 Error: %u"), error);
-        }
-        else if(buffer[0] == 0x02)
-        {
-            uint16_t temperatureRaw = (buffer[3] << 8) | buffer[4];
-            uint16_t humidityRaw = (buffer[5] << 8) | buffer[6];
-
-            Sht20.temperature = temperatureRaw / 10.0;
-            Sht20.humidity = humidityRaw / 10.0;
-        }
-    }
-
-    current_sensor = 0;
-} */
-
 const char HTTP_SNS_SHT20_TEMP[] PROGMEM = "{s} SHT20 Temperature {m}  %.1f °C";
 const char HTTP_SNS_SHT20_HUMI[] PROGMEM = "{s} SHT20 Humidity {m}     %.1f %%";
 
@@ -162,8 +128,6 @@ void SHT20Show(bool json)
         ResponseAppend_P(PSTR("\"" D_JSON_TEMPERATURE "\":%*_f,\"" D_JSON_HUMIDITY "\":%*_f"),
                              Settings->flag2.temperature_resolution, &Sht20.temperature,
                              Settings->flag2.humidity_resolution, &Sht20.humidity);
-        //ResponseAppend_P(PSTR("\"" D_JSON_WDS "\":%d"), wds.wind_direction);
-
         ResponseJsonEnd();
     }
 #ifdef USE_WEBSERVER
@@ -171,8 +135,6 @@ void SHT20Show(bool json)
     {
         WSContentSend_PD(HTTP_SNS_SHT20_TEMP, Sht20.temperature);
         WSContentSend_PD(HTTP_SNS_SHT20_HUMI, Sht20.humidity);
-        //WSContentSend_PD(HTTP_SNS_WDS, wds.wind_direction);
-        //WSContentSend_P("{s}%sTemperature {m} %.1f °C", Sht20.name, Sht20.temperature);
 #endif
     }
 }

@@ -14,9 +14,9 @@ struct EPAMt
 }EPAM;
 
 #define EPAM_ADDRESS_ID 0x24
-#define EPAM_ADDRESS_PM_2_5 0x0000
-#define EPAM_ADDRESS_PM10 0x0001
-#define EPAM_ADDRESS_PM1 0x0002
+#define EPAM_ADDRESS_PM_2_5 0x0004
+#define EPAM_ADDRESS_PM10 0x0009
+#define EPAM_ADDRESS_PM1 0x0000
 #define EPAM_FUNCTION_CODE 0x03
 #define EPAM_TIMEOUT 150
 
@@ -65,9 +65,20 @@ void EPAMReadData(void)
 
     if(isWaitingResponse(EPAM_ADDRESS_ID)) return;
 
+    static const struct 
+    {
+        uint16_t EPAMRegAddr;
+        uint8_t EPAMRegCount;
+    } EAPMModbusRequests[] = {
+        {0x0004, 1}, // PM2.5
+        {0x0009, 1}  // PM10
+    };
+    
+    static uint8_t EPAMRequestIndex = 0
+
     if(RS485.requestSent[EPAM_ADDRESS_ID] == 0 && RS485.lastRequestTime == 0)
     {
-        RS485.Rs485Modbus -> Send(EPAM_ADDRESS_ID, EPAM_FUNCTION_CODE, EPAM_ADDRESS_PM_2_5, (0x00 << 8) | 0x03);
+        RS485.Rs485Modbus -> Send(EPAM_ADDRESS_ID, EPAM_FUNCTION_CODE, EPAMModbusRequests[EPAMRequestIndex].EPAMRegAddr, EPAMModbusRequests[EPAMRequestIndex].EPAMRegCount);
         RS485.requestSent[EPAM_ADDRESS_ID] = 1;
         RS485.lastRequestTime = millis();
     }  
@@ -75,7 +86,7 @@ void EPAMReadData(void)
     {
         if(RS485.Rs485Modbus -> ReceiveReady())
         {
-            uint8_t buffer[11];
+            uint8_t buffer[8];
             uint8_t error = RS485.Rs485Modbus -> ReceiveBuffer(buffer, sizeof(buffer));
 
             if(error)
@@ -84,14 +95,19 @@ void EPAMReadData(void)
             }
             else if(buffer[0] == EPAM_ADDRESS_ID)
             {
-                uint16_t pm2_5Raw = (buffer[3] << 8) | buffer[4];
-                uint16_t pm10Raw = (buffer[5] << 8) | buffer[6];
-                uint16_t pm1Raw = (buffer[7] << 8) | buffer[8];
-
-                EPAM.PM2_5 = pm2_5Raw;
-                EPAM.PM10 = pm10Raw;
-                EPAM.PM1 = pm1Raw;
+                switch(EPAMRequestIndex)
+                {
+                    case 0:
+                        EPAM.PM2_5 = (buffer[3] << 8) | buffer[4];
+                    break;
+                    case 1:
+                        EPAM.PM10 = (buffer[3] << 8) | buffer[4];
+                    
+                    break;
+                }
+                //uint16_t pm1Raw = (buffer[7] << 8) | buffer[8];
             }
+            EPAMRequestIndex = (EPAMRequestIndex + 1) % (sizeof(EPAMModbusRequests) / sizeof(EPAMModbusRequests[0]));
             RS485.requestSent[EPAM_ADDRESS_ID] = 0;
             RS485.lastRequestTime = 0;
         }
@@ -100,11 +116,11 @@ void EPAMReadData(void)
 
 const char HTTP_SNS_EPAM_PM2_5[] PROGMEM = "{s} EPAM PM2.5 {m} %.1fμg/m³";
 const char HTTP_SNS_EPAM_PM10[] PROGMEM = "{s} EPAM PM10.0 {m} %.1fμg/m³";
-const char HTTP_SNS_EPAM_PM1[] PROGMEM = "{s} EPAM PM1.0 {m} %.1fμg/m³";
+//const char HTTP_SNS_EPAM_PM1[] PROGMEM = "{s} EPAM PM1.0 {m} %.1fμg/m³";
 
 #define D_JSON_EPAM_PM2_5 "EPAM PM2.5"
 #define D_JSON_EPAM_PM10 "EPAM PM10.0"
-#define D_JSON_EPAM_PM1 "EPAM PM1.0"
+//#define D_JSON_EPAM_PM1 "EPAM PM1.0"
 
 void EPAMShow(bool json)
 {
@@ -112,8 +128,8 @@ void EPAMShow(bool json)
     {
         ResponseAppend_P(PSTR(",\"%s\":{"), EPAM.name);
         ResponseAppend_P(PSTR("\"" D_JSON_EPAM_PM2_5 "\":%.1f,"), EPAM.PM2_5);
-        ResponseAppend_P(PSTR("\"" D_JSON_EPAM_PM10 "\":%.1f,"), EPAM.PM10);
-        ResponseAppend_P(PSTR("\"" D_JSON_EPAM_PM1 "\":%.1f"), EPAM.PM1);
+        ResponseAppend_P(PSTR("\"" D_JSON_EPAM_PM10 "\":%.1f"), EPAM.PM10);
+        //ResponseAppend_P(PSTR("\"" D_JSON_EPAM_PM1 "\":%.1f"), EPAM.PM1);
         ResponseJsonEnd();
     }
 #ifdef USE_WEBSERVER
@@ -121,7 +137,7 @@ void EPAMShow(bool json)
     {
         WSContentSend_PD(HTTP_SNS_EPAM_PM2_5, EPAM.PM2_5);
         WSContentSend_PD(HTTP_SNS_EPAM_PM10, EPAM.PM10);
-        WSContentSend_PD(HTTP_SNS_EPAM_PM1, EPAM.PM1);
+        //WSContentSend_PD(HTTP_SNS_EPAM_PM1, EPAM.PM1);
     }
 #endif
 }

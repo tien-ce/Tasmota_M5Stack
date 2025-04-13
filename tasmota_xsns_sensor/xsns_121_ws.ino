@@ -90,10 +90,6 @@ void WDSReadData(void)
             RS485.requestSent[WDS_ADDRESS_ID] = 0;
             RS485.lastRequestTime = 0;
         }
-        else
-        {
-            // AddLog(LOG_LEVEL_INFO,PSTR("Can not read Data"));
-        }
     }
 }
 
