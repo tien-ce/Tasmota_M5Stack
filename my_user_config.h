@@ -614,16 +614,19 @@
 
 // -- RS485 sensors ----------------------------
 #define USE_RS485
-#define RS485DRIVERS_0_31     0xFFFFFFFF
-#define RS485DRIVERS_32_63    0xFFFFFFFF
+//#define RS485DRIVERS_0_31     0xFFFFFFFF
+//#define RS485DRIVERS_32_63    0xFFFFFFFF
+
+#define RS485DRIVERS_0_31       0x00000000
+#define RS485DRIVERS_32_63      0x00000000
 
 #ifdef USE_RS485
-  //#define USE_SHT20
-  //#define USE_WDS
-  //#define USE_SOILMOISTURE
-  //#define USE_EP_NO2
-  //#define USE_ES_SO2
-  //#define USE_EP_O3
+  #define USE_SHT20
+  #define USE_WDS
+  #define USE_SOILMOISTURE
+  #define USE_EP_NO2
+  #define USE_ES_SO2
+  #define USE_EP_O3
   #define USE_EPAM
 #endif // USE_RS485
 

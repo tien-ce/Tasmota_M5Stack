@@ -1,18 +1,48 @@
 import json
 import string
 
-# Bảng map cho 10 giá trị telemetry: V1 ... V10
+# Bảng map cho 40 giá trị telemetry: V1 ... V40
 var telemetry_map = {
-  "V1":   nil,
-  "V2":   nil,
-  "V3":   nil,
-  "V4":   nil,
-  "V5":   nil,
-  "V6":   nil,
-  "V7":   nil,
-  "V8":   nil,
-  "V9":   nil,
-  "V10":  nil
+  "V1"  :  nil,
+  "V2"  :  nil,
+  "V3"  :  nil,
+  "V4"  :  nil,
+  "V5"  :  nil,
+  "V6"  :  nil,
+  "V7"  :  nil,
+  "V8"  :  nil,
+  "V9"  :  nil,
+  "V10" :  nil,
+  "V11" :  nil,
+  "V12" :  nil,
+  "V13" :  nil,
+  "V14" :  nil,
+  "V15" :  nil,
+  "V16" :  nil,
+  "V17" :  nil,
+  "V18" :  nil,
+  "V19" :  nil,
+  "V20" :  nil,
+  "V21" :  nil,
+  "V22" :  nil,
+  "V23" :  nil,
+  "V24" :  nil,
+  "V25" :  nil,
+  "V26" :  nil,
+  "V27" :  nil,
+  "V28" :  nil,
+  "V29" :  nil,
+  "V30" :  nil,
+  "V31" :  nil,
+  "V32" :  nil,
+  "V33" :  nil,
+  "V34" :  nil,
+  "V35" :  nil,
+  "V36" :  nil,
+  "V37" :  nil,
+  "V38" :  nil,
+  "V39" :  nil,
+  "V40" :  nil,
 }
 
 #####################################
@@ -88,7 +118,7 @@ def sendLoraBerry()
   end
 
   var json_str = json.dump(telemetry_out)
-  print("Sending LoRa Telemetry (auto V1–V10): " + json_str)
+  print("Sending LoRa Telemetry (auto V1–V40): " + json_str)
   tasmota.cmd("SendLoraTelemetry " + json_str)
 end
 # Tự động gọi mỗi 10 giây (có thể giữ hoặc bỏ tuỳ bạn)

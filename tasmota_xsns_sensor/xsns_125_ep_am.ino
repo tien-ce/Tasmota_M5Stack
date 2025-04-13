@@ -69,12 +69,12 @@ void EPAMReadData(void)
     {
         uint16_t EPAMRegAddr;
         uint8_t EPAMRegCount;
-    } EAPMModbusRequests[] = {
+    } EPAMModbusRequests[] = {
         {0x0004, 1}, // PM2.5
         {0x0009, 1}  // PM10
     };
     
-    static uint8_t EPAMRequestIndex = 0
+    static uint8_t EPAMRequestIndex = 0;
 
     if(RS485.requestSent[EPAM_ADDRESS_ID] == 0 && RS485.lastRequestTime == 0)
     {
@@ -98,10 +98,10 @@ void EPAMReadData(void)
                 switch(EPAMRequestIndex)
                 {
                     case 0:
-                        EPAM.PM2_5 = (buffer[3] << 8) | buffer[4];
+                        EPAM.PM2_5 = ((buffer[3] << 8) | buffer[4]) / 100.0;
                     break;
                     case 1:
-                        EPAM.PM10 = (buffer[3] << 8) | buffer[4];
+                        EPAM.PM10 = ((buffer[3] << 8) | buffer[4]) / 100.0;
                     
                     break;
                 }
